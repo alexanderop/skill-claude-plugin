@@ -226,8 +226,7 @@ This is truly open source software - anyone can use, modify, and distribute it f
 
 ## Version History
 
-- **2.0.0** - Complete toolkit transformation with all creation commands
-- **1.0.0** - Initial plugin creator version
+- **1.0.0** - First official release with comprehensive creation commands (2025-01-08)
 
 ## Author
 
