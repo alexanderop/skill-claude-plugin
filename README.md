@@ -1,217 +1,211 @@
 # Claude Code Builder
 
-> Create skills, subagents, hooks, commands, and plugins for Claude Code
+> Build **skills**, **subagents**, **hooks**, **slash commands**, and **plugins** for Claude Code — fast, consistently, and with best practices baked in.
 
-A comprehensive builder plugin that helps you create and manage Claude Code customizations with best practices built-in.
+[![License: MIT](https://img.shields.io/badge/License-MIT-informational.svg)](LICENSE)
+[![Status](https://img.shields.io/badge/status-stable-success.svg)](#)
+[![Works with](https://img.shields.io/badge/Claude%20Code-compatible-blue.svg)](#)
 
-## What's Inside
+---
 
-This plugin provides slash commands to create:
+## Why this exists
 
-- **Skills** - Model-invoked capabilities that Claude discovers automatically (`/claude-skill`)
-- **Subagents** - Delegated AI agents with specialized roles (`/create-agent`)
-- **Commands** - User-invoked slash commands for workflows (`/create-command`)
-- **Hooks** - Event-triggered automations (`/claude-hook`)
-- **Plugins** - Distributable Claude Code packages (`/create-plugin`)
-- **Documentation** - Project CLAUDE.md files (`/claude-md`)
-- **Output Styles** - Custom Claude response formatting (`/claude-output-style`)
+Creating high-quality Claude Code customizations involves repetitive scaffolding and convention wrangling. **Claude Code Builder** gives you guided commands that generate the right files, structure, and docs — so you can focus on logic, not boilerplate.
 
-## Available Commands
+---
 
-### `/claude-skill`
-Create a new Claude Code skill with proper structure and best practices.
+## Local Development & Release Flow
 
-Skills are automatically invoked by Claude based on context. Perfect for extending Claude's capabilities with domain knowledge, processes, or specialized workflows.
+For local development, contributors open a PR against this repo.  
+When the PR is **merged into `main`**, the marketplace manifest already points to this repo, so **the plugin is live immediately** (no extra publish step). Reviews and approvals are handled by the maintainer.
 
-**Usage:** `/claude-skill [skill-name] [description]`
+**Summary**
 
-### `/create-agent`
-Create a new subagent with specialized expertise and tool permissions.
+1. Fork + branch  
+2. Implement changes  
+3. Open PR → review  
+4. **Merge to `main` → live in marketplace**
 
-Subagents handle delegated tasks in separate threads. Ideal for code review, debugging, security analysis, and other focused roles.
-
-**Usage:** `/create-agent [name] [description]`
-
-### `/create-command`
-Create a new slash command for explicit user invocation.
-
-Commands are manually triggered prompts for frequently-used workflows. Great for shortcuts, templates, and deliberate actions.
-
-**Usage:** `/create-command [name] [purpose]`
-
-### `/claude-hook`
-Analyze your project and create hooks for automation.
-
-Hooks trigger on events like file edits or tool usage. Useful for linting, formatting, type-checking, and security scanning.
-
-**Usage:** `/claude-hook [hook-type] [matcher] [command]`
-
-### `/create-plugin`
-Convert a `.claude/` directory into a distributable plugin.
-
-Package your customizations for sharing across projects or with your team.
-
-**Usage:** `/create-plugin [project-path]`
-
-### `/claude-md`
-Generate CLAUDE.md files for project and key subdirectories.
-
-Creates documentation that helps Claude understand your project structure and conventions.
-
-**Usage:** `/claude-md [thoroughness: quick|medium|very-thorough]`
-
-### `/claude-output-style`
-Configure the user's Claude Code status line setting.
-
-Customize how Claude presents information and responses to match your preferences.
-
-**Usage:** `/claude-output-style`
+---
 
 ## Installation
 
-### Quick Install (Recommended)
+### Claude Code (via Plugin Marketplace)
 
-Install directly from GitHub in two commands:
-
+**1) Register the marketplace in Claude Code:**
 ```bash
-# Add the marketplace
 /plugin marketplace add alexanderop/claude-code-builder
+````
 
-# Install the plugin
+**2) Install the plugin from this marketplace:**
+
+```bash
 /plugin install claude-code-builder@claude-code-builder-dev
 ```
 
-That's it! All commands will be immediately available. Type `/help` to see them listed.
+### Verify Installation
 
-### Alternative: Git URL
-
-You can also add the marketplace using the full Git URL:
+**Check that commands appear:**
 
 ```bash
-/plugin marketplace add https://github.com/alexanderop/claude-code-builder.git
-/plugin install claude-code-builder@claude-code-builder-dev
+/help
+# Should see:
+# /claude-skill            - Create an auto-invoked Skill with best practices
+# /create-agent            - Create a subagent with focused role/tools
+# /create-command          - Generate a slash command (explicit invocation)
+# /claude-hook             - Configure event-driven hooks (pre/post tool use, etc.)
+# /create-plugin           - Package a .claude/ setup into a plugin
+# /claude-md               - Generate CLAUDE.md files (project awareness)
+# /claude-output-style     - Create/activate custom Output Styles
 ```
 
-### Local Development/Testing
+> Tip: If commands don’t appear, run `/help` again or restart Claude Code, then re-run the install command.
 
-For plugin development or testing local changes:
+---
+
+## What you can generate
+
+| Command                | Purpose (1-liner)                                                                 | Typical usage example                                                          |
+| ---------------------- | --------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| `/claude-skill`        | Scaffold a **model-invoked Skill** Claude auto-discovers from context.            | `/claude-skill commit-helper "Generate helpful git commit messages"`           |
+| `/create-agent`        | Create a **subagent** with a focused role and optional tool/model settings.       | `/create-agent reviewer "Expert code reviewer; use proactively after changes"` |
+| `/create-command`      | Add a **slash command** for repeatable workflows you invoke explicitly.           | `/create-command analyze-deps "Analyze dependencies for outdated packages"`    |
+| `/claude-hook`         | Configure **event hooks** (pre/post tool use, prompt submit, etc.) with JSON/CLI. | `/claude-hook PreToolUse "Bash" "jq -r '.tool_input.command' >> ~/.log"`       |
+| `/create-plugin`       | Turn a `.claude/` setup into a **distributable plugin** with manifests.           | `/create-plugin`                                                               |
+| `/claude-md`           | Generate root & nested **CLAUDE.md** files that teach Claude your project.        | `/claude-md medium`                                                            |
+| `/claude-output-style` | Create/activate **Output Styles** (stored system prompts) for different modes.    | `/claude-output-style "Teaching Assistant" --project --description "...“`      |
+
+> Each command opens a guided flow and prints the exact files/paths it creates.
+
+---
+
+## Usage cheatsheet
 
 ```bash
-# Clone and navigate to the repository
+# Skill (auto-invoked by Claude)
+#/claude-skill [skill-name] "[what it does and when to use it]"
+/claude-skill commit-helper "Generate clear commit messages; use when committing or reviewing staged changes."
+
+# Subagent (focused role)
+#/create-agent [name] "[when to invoke]" [--tools ...] [--model ...]
+/create-agent reviewer "Expert code reviewer; use proactively after code changes" --tools "Read,Grep,Glob"
+
+# Slash command (explicit invocation)
+/create-command analyze-deps "Analyze dependencies for outdated packages"
+
+# Hook (automate on events)
+/claude-hook PreToolUse "Edit|Write" "python3 .scripts/block_sensitive_edits.py"
+
+# Package your setup as a plugin
+/create-plugin
+
+# Project awareness docs for Claude
+/claude-md very-thorough
+
+# Output style for non-default workflows
+/claude-output-style "Teaching Assistant" --project --description "Explains step by step with examples"
+```
+
+---
+
+## Local development
+
+```bash
+# 1) Clone
 git clone https://github.com/alexanderop/claude-code-builder.git
 cd claude-code-builder
 
-# Start Claude Code
+# 2) Start Claude Code
 claude
 
-# Add local marketplace and install
+# 3) Add a local marketplace and install
 /plugin marketplace add .
 /plugin install claude-code-builder@claude-code-builder-dev
 ```
 
-## Usage
+You can iterate by editing files under `commands/` and re-installing. For multi-plugin testing, create a parent test marketplace (e.g., `dev-marketplace/`) and place this repo inside it — `/create-plugin` prints exact paths and next steps.
 
-After installation, simply invoke any of the creation commands:
+---
 
-```bash
-# Create a new skill
-/claude-skill my-skill "Description of what the skill does"
-
-# Create a new subagent
-/create-agent reviewer "Code review specialist"
-
-# Create a new command
-/create-command my-command "Command purpose"
-
-# Create a hook
-/claude-hook edit "*.ts" "npm run type-check"
-
-# Convert .claude directory to plugin
-/create-plugin
-
-# Generate CLAUDE.md documentation
-/claude-md medium
-
-# Configure output style
-/claude-output-style
-```
-
-Each command will guide you through the creation process with questions about:
-- Name and purpose
-- Scope (project vs personal)
-- Tool permissions
-- Configuration options
-
-All commands follow Claude Code best practices and include comprehensive testing instructions.
-
-## Quick Decision Guide
-
-**Not sure what to create?**
-
-- **Skill**: Want Claude to automatically discover and use a capability based on context
-- **Subagent**: Need a specialized AI agent for a focused role (code review, debugging, etc.)
-- **Command**: Want a shortcut for a frequently-used prompt you explicitly invoke
-- **Hook**: Want automation that triggers on events (file edits, tool usage, etc.)
-- **Plugin**: Want to package and share your customizations
-
-## Structure
+## Project structure
 
 ```
 claude-code-builder/
 ├── .claude-plugin/
-│   └── plugin.json              # Plugin manifest
-├── commands/                    # Slash commands
-│   ├── claude-skill.md          # Skill creation guide
-│   ├── create-agent.md          # Subagent creation guide
-│   ├── create-command.md        # Command creation guide
-│   ├── claude-hook.md           # Hook creation guide
-│   ├── create-plugin.md         # Plugin creation guide
-│   ├── claude-md.md             # CLAUDE.md generation
-│   └── claude-output-style.md   # Output style configuration
-├── .claude/                     # Local development config
-│   ├── commands/                # Original command source
-│   └── settings.local.json      # Tool permissions
-└── README.md
+│   ├── plugin.json              # Plugin manifest (name, version, repo, license)
+│   └── marketplace.json         # Local marketplace for dev/testing
+├── commands/                    # All slash-command sources (Markdown with frontmatter)
+│   ├── claude-skill.md
+│   ├── create-agent.md
+│   ├── create-command.md
+│   ├── claude-hook.md
+│   ├── create-plugin.md
+│   ├── claude-md.md
+│   └── claude-output-style.md
+├── README.md
+├── LICENSE
+└── .gitignore
 ```
 
-## Features
+---
 
-- **Best practices built-in**: Each command follows official Claude Code documentation
-- **Interactive guidance**: Commands ask questions to gather all needed information
-- **Comprehensive testing**: Every creation includes detailed testing instructions
-- **Scope flexibility**: Create project-level (shared) or personal customizations
-- **Tool safety**: Proper tool restrictions and permission management
-- **Documentation**: Clear explanations of when and why to use each feature
+## Design principles
+
+* **Convention over configuration** — consistent file names, frontmatter, and paths.
+* **Safety rails** — hooks and commands promote least-privilege tools and reviewability.
+* **Explainability** — generated files include commented templates and examples.
+* **Distribution-ready** — manifests and marketplace layout support team sharing.
+
+---
 
 ## Requirements
 
-- Claude Code CLI installed
-- Basic familiarity with Markdown and YAML
+* Claude Code installed (CLI + UI)
+* Shell environment with common tooling (`bash`, `jq`, `python3` for sample hooks)
+* Git (for marketplace installs)
+
+> The plugin itself is language-agnostic; your generated Skills/agents can target any stack.
+
+---
+
+## FAQs
+
+**Where do files get created?**
+User-level content goes under `~/.claude/...`; project-level content under `.claude/...`. Commands print exact paths.
+
+**Can I block risky actions?**
+Yes — use `PreToolUse` hooks that exit with code `2` to block operations (see `/claude-hook` examples).
+
+**How do I share with my team?**
+Use `/create-plugin` to package your `.claude/` config and add it to a marketplace repo; teammates run the two install commands.
+
+---
 
 ## Contributing
 
-Contributions welcome! If you find issues or have suggestions:
+Issues and PRs are welcome 🎉
 
-1. Check existing issues
-2. Create a detailed bug report or feature request
-3. Submit pull requests with clear descriptions
+1. Check existing issues and discussions
+2. Open a focused bug report or RFC
+3. Submit a PR with clear description and before/after notes
 
-## Repository
+---
 
-https://github.com/alexanderop/claude-code-builder
+## Versioning
+
+* **1.0.0** – Initial release of all creation commands *(2025-01-08)*
+
+See the repository for releases and change notes.
+
+---
 
 ## License
 
-MIT License - See [LICENSE](LICENSE) for details.
+MIT — see [LICENSE](LICENSE).
 
-This is truly open source software - anyone can use, modify, and distribute it freely.
-
-## Version History
-
-- **1.0.0** - First official release with comprehensive creation commands (2025-01-08)
+---
 
 ## Author
 
-**Alexander Opalic**
+**Alexander Opalic** · [https://github.com/alexanderop/claude-code-builder](https://github.com/alexanderop/claude-code-builder)
 
-A comprehensive builder for Claude Code customization.
